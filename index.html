@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="MindQuest — a story-driven reflection adventure. Emotions are not your enemy, they're clues.">
+  <meta name="theme-color" content="#070b1f">
+  <title>MindQuest — Emotions are clues</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- ===== Ambient background (decorative) ===== -->
+  <div class="bg" aria-hidden="true">
+    <div class="bg-sky"></div>
+    <div class="bg-moon"></div>
+    <div class="bg-trees bg-trees-far" id="treesFar"></div>
+    <div class="bg-trees bg-trees-near" id="treesNear"></div>
+    <div class="bg-mist"></div>
+  </div>
+  <canvas id="particles" aria-hidden="true"></canvas>
+
+  <!-- ===== Top bar ===== -->
+  <header class="topbar">
+    <button class="brand" data-nav="home" aria-label="MindQuest home">
+      <span class="brand-mark" aria-hidden="true">✦</span> MindQuest
+    </button>
+    <nav class="nav" aria-label="Main">
+      <button class="nav-link" data-nav="home">Home</button>
+      <button class="nav-link" data-nav="breathe">Restore the Light</button>
+      <button class="nav-link" data-nav="reflections">My Reflections</button>
+      <button class="nav-link" data-nav="about">About &amp; Safety</button>
+    </nav>
+    <div class="topbar-tools">
+      <button class="icon-btn" id="soundToggle" data-action="toggle-sound" aria-pressed="false" title="Sound off">
+        <span class="sound-icon" aria-hidden="true">♪</span><span class="sr-only">Toggle sound</span>
+      </button>
+      <button class="icon-btn" data-action="reset-game" title="Restart the game">
+        <span aria-hidden="true">↺</span><span class="sr-only">Restart the game</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Journey progress (visible only during quests) -->
+  <div class="journey-progress" id="journeyProgress" hidden>
+    <div class="journey-progress-track" role="progressbar" aria-label="Journey progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+      <div class="journey-progress-fill" id="journeyProgressFill"></div>
+    </div>
+    <p class="journey-progress-label" id="journeyProgressLabel"></p>
+  </div>
+
+  <main id="main">
+
+    <!-- ===== 1. HOME ===== -->
+    <section class="screen is-active" data-screen="home" aria-labelledby="homeTitle">
+      <div class="hero">
+        <div class="portal" aria-hidden="true">
+          <span class="portal-ring r1"></span>
+          <span class="portal-ring r2"></span>
+          <span class="portal-ring r3"></span>
+          <span class="portal-core"></span>
+        </div>
+        <p class="eyebrow">A story-driven reflection adventure</p>
+        <h1 class="title" id="homeTitle" tabindex="-1">Mind<span>Quest</span></h1>
+        <p class="tagline">Emotions are not your enemy — they’re clues.</p>
+        <div class="hero-actions">
+          <button class="btn btn-primary btn-lg" data-action="start-journey">Begin your journey</button>
+          <button class="btn btn-ghost" data-nav="how">How it works</button>
+          <button class="btn btn-ghost" data-nav="reflections">My reflections</button>
+        </div>
+        <button class="link-btn" data-nav="breathe">or step into the garden and Restore the Light ☾</button>
+      </div>
+    </section>
+
+    <!-- ===== 2. HOW IT WORKS ===== -->
+    <section class="screen" data-screen="how" aria-labelledby="howTitle">
+      <div class="page">
+        <header class="page-head">
+          <p class="eyebrow">Before you set out</p>
+          <h2 id="howTitle" tabindex="-1">How it works</h2>
+        </header>
+        <ol class="how-grid">
+          <li class="panel how-card"><span class="how-num">1</span><h3>Play three quests</h3><p>Walk the Lantern Road, enter the Silent Forest and cross the Drowned Island. Each quest asks you to choose — there are no right or wrong answers.</p></li>
+          <li class="panel how-card"><span class="how-num">2</span><h3>Choices become clues</h3><p>Every choice carries gentle themes like rest, connection or uncertainty. A simple, visible rule set turns them into a personal reflection.</p></li>
+          <li class="panel how-card"><span class="how-num">3</span><h3>Restore the Light</h3><p>A guided breathing garden. Follow a glowing orb at a comfortable pace and watch the garden brighten.</p></li>
+          <li class="panel how-card"><span class="how-num">4</span><h3>Keep what matters</h3><p>Save journeys, log a mood and write journal entries. They stay only in this browser — nothing is ever sent anywhere.</p></li>
+        </ol>
+        <p class="notice">MindQuest is a space for reflection — not a diagnosis, test or treatment.</p>
+        <div class="page-actions">
+          <button class="btn btn-primary" data-action="start-journey">Begin your journey</button>
+          <button class="btn btn-ghost" data-nav="home">Back</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 3. QUEST (rendered by script.js) ===== -->
+    <section class="screen" data-screen="quest" aria-label="Quest">
+      <div class="quest-wrap">
+        <article class="quest-card" id="questView"></article>
+      </div>
+    </section>
+
+    <!-- ===== 4. ENDING + REFLECTION (rendered by script.js) ===== -->
+    <section class="screen" data-screen="ending" aria-label="Your reflection">
+      <div class="page" id="endingView"></div>
+    </section>
+
+    <!-- ===== 5. RESTORE THE LIGHT (breathing) ===== -->
+    <section class="screen screen-breathe" data-screen="breathe" aria-labelledby="breatheTitle">
+      <div class="breathe-layout">
+        <div class="garden" id="garden">
+          <div class="garden-glow"></div>
+          <div class="garden-flowers" id="gardenFlowers" aria-hidden="true"></div>
+          <div class="orb-wrap" aria-hidden="true">
+            <div class="orb-halo" id="orbHalo"></div>
+            <div class="orb" id="orb"><span class="orb-core"></span></div>
+          </div>
+          <p class="breath-cue" id="breathCue" aria-live="polite">Press start when you’re ready.</p>
+        </div>
+
+        <div class="panel breathe-panel">
+          <p class="eyebrow">Breathing garden</p>
+          <h2 id="breatheTitle" tabindex="-1">Restore the Light</h2>
+          <p class="panel-sub">Breathe in as the orb grows, out as it softens. Each breath brings light back to the garden.</p>
+
+          <div class="breath-progress">
+            <div class="meter" role="progressbar" aria-label="Session progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="breathMeter">
+              <div class="meter-fill" id="breathBar"></div>
+            </div>
+            <div class="breath-stats">
+              <span id="breathTime">5:00 left</span>
+              <span id="breathCycle">Breath 0 of 30</span>
+            </div>
+          </div>
+
+          <fieldset class="duration" id="breathDuration">
+            <legend>Session length</legend>
+            <label><input type="radio" name="breathLen" value="1"> 1 min</label>
+            <label><input type="radio" name="breathLen" value="3"> 3 min</label>
+            <label><input type="radio" name="breathLen" value="5" checked> 5 min</label>
+          </fieldset>
+
+          <div class="breath-actions">
+            <button class="btn btn-primary" id="breathStart" data-action="breath-start">Start</button>
+            <button class="btn btn-ghost" id="breathPause" data-action="breath-pause" hidden>Pause</button>
+            <button class="btn btn-ghost" data-action="breath-exit">Exit</button>
+          </div>
+
+          <div class="breath-done" id="breathDone" hidden>
+            <p class="breath-done-title">✦ The garden is glowing again.</p>
+            <p>You gave yourself a few quiet minutes. Notice how you feel right now — no need to change it.</p>
+            <div class="breath-actions">
+              <button class="btn btn-primary" data-action="breath-again">Breathe again</button>
+              <button class="btn btn-ghost" data-nav="reflections">Write a reflection</button>
+            </div>
+          </div>
+
+          <p class="fine">Breathe gently and comfortably — there’s no need to hold your breath. If you feel light-headed, return to your normal breathing.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 6. MY REFLECTIONS (dashboard) ===== -->
+    <section class="screen" data-screen="reflections" aria-labelledby="reflTitle">
+      <div class="page page-wide">
+        <header class="page-head">
+          <p class="eyebrow">Your private space</p>
+          <h2 id="reflTitle" tabindex="-1">My Reflections</h2>
+          <p class="page-sub">Saved only in this browser, only when you choose. Nothing is sent to any server.</p>
+        </header>
+
+        <div class="dash-grid">
+          <section class="panel" aria-labelledby="djTitle">
+            <h3 id="djTitle">Journey summary</h3>
+            <div id="dashJourney"></div>
+          </section>
+
+          <section class="panel" aria-labelledby="dtTitle">
+            <h3 id="dtTitle">Themes board</h3>
+            <p class="panel-sub">How often each theme appeared in your saved journeys.</p>
+            <div id="dashThemes"></div>
+          </section>
+
+          <section class="panel" aria-labelledby="dmTitle">
+            <h3 id="dmTitle">How are you feeling?</h3>
+            <p class="panel-sub">Optional. Only recorded if you press “Log mood”.</p>
+            <div class="mood-options" id="moodOptions" role="group" aria-label="Choose a mood"></div>
+            <div class="row-actions">
+              <button class="btn btn-small btn-primary" id="moodLog" data-action="log-mood" disabled>Log mood</button>
+            </div>
+            <div id="moodHistory"></div>
+          </section>
+
+          <section class="panel" aria-labelledby="jnTitle">
+            <h3 id="jnTitle">Reflection journal</h3>
+            <div class="prompt-chips" id="promptChips" aria-label="Writing prompts"></div>
+            <label for="journalText" class="sr-only">Journal entry</label>
+            <textarea id="journalText" rows="5" maxlength="4000" placeholder="Write freely. This stays on your device."></textarea>
+            <div class="row-actions">
+              <button class="btn btn-small btn-ghost" id="journalCancel" data-action="journal-cancel" hidden>Cancel edit</button>
+              <button class="btn btn-small btn-primary" id="journalSave" data-action="journal-save">Save entry</button>
+            </div>
+            <ul class="entry-list" id="journalList"></ul>
+          </section>
+        </div>
+
+        <section class="panel privacy-panel" aria-labelledby="pvTitle">
+          <div>
+            <h3 id="pvTitle">Your data, your choice</h3>
+            <p>Journeys, moods and journal entries live in this browser’s local storage. MindQuest is designed for safe reflection — it is not a diagnosis or treatment.</p>
+          </div>
+          <button class="btn btn-danger" data-action="clear-data">Clear all data</button>
+        </section>
+      </div>
+    </section>
+
+    <!-- ===== 7. ABOUT & SAFETY ===== -->
+    <section class="screen" data-screen="about" aria-labelledby="aboutTitle">
+      <div class="page">
+        <header class="page-head">
+          <p class="eyebrow">About &amp; Safety</p>
+          <h2 id="aboutTitle" tabindex="-1">A gentle mirror, not a diagnosis</h2>
+        </header>
+        <div class="about-grid">
+          <section class="panel">
+            <h3>What MindQuest is</h3>
+            <p>A short fantasy adventure that invites you to notice how you respond to slow progress, distance from others and competing priorities. Your choices map to broad themes through simple rules you can inspect at the end of every journey.</p>
+          </section>
+          <section class="panel">
+            <h3>What it is not</h3>
+            <p>MindQuest does not diagnose anxiety, depression or any other condition, and game choices cannot reliably identify mental illness. It is not therapy and not a substitute for professional care.</p>
+          </section>
+          <section class="panel">
+            <h3>Privacy</h3>
+            <p>No accounts, no servers, no tracking. Anything you save is stored only in this browser and can be erased with “Clear all data”.</p>
+          </section>
+          <section class="panel panel-help">
+            <h3>If you need support</h3>
+            <p>If you are in distress or feel unsafe, please reach out to someone you trust or a professional. In India you can call <strong>Tele-MANAS at 14416</strong> (free, 24×7). In an emergency, contact your local emergency number.</p>
+          </section>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-primary" data-action="start-journey">Begin your journey</button>
+          <button class="btn btn-ghost" data-nav="home">Back home</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>MindQuest · A space for reflection, not diagnosis or treatment. <button class="link-btn" data-nav="about">About &amp; Safety</button></p>
+  </footer>
+
+  <!-- ===== Confirm dialog ===== -->
+  <div class="modal" id="modal" hidden>
+    <div class="modal-backdrop" data-modal="cancel"></div>
+    <div class="modal-card panel" role="alertdialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalMsg">
+      <h2 id="modalTitle">Are you sure?</h2>
+      <p id="modalMsg"></p>
+      <div class="row-actions">
+        <button class="btn btn-ghost" data-modal="cancel" id="modalCancel">Cancel</button>
+        <button class="btn btn-danger" data-modal="ok" id="modalOk">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Toast ===== -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
